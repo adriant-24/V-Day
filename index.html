@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Selection and Email</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .image-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .image-container img {
+            width: 200px;
+            height: 200px;
+            margin: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .image-container img.selected {
+            border: 2px solid #4CAF50;
+        }
+        #nextButton {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            emailjs.init("tYoVitsA3FI2rDj3_"); // Replace with your EmailJS user ID
+        })();
+    </script>
+</head>
+<body>
+
+    <h1>Select an Image</h1>
+    
+    <div class="image-container" id="imageSet1">
+        <img src="image1.jpg" alt="Image 1" onclick="selectImage(1, 'Image 1')">
+        <img src="image2.jpg" alt="Image 2" onclick="selectImage(1, 'Image 2')">
+        <img src="image3.jpg" alt="Image 3" onclick="selectImage(1, 'Image 3')">
+    </div>
+    
+    <div class="image-container" id="imageSet2" style="display: none;">
+        <img src="image4.jpg" alt="Image 4" onclick="selectImage(2, 'Image 4')">
+        <img src="image5.jpg" alt="Image 5" onclick="selectImage(2, 'Image 5')">
+        <img src="image6.jpg" alt="Image 6" onclick="selectImage(2, 'Image 6')">
+    </div>
+    
+    <button id="nextButton" onclick="nextSet()">Next</button>
+
+    <button id="finishButton" style="display:none;" onclick="finishSelection()">Finish and Send Email</button>
+
+    <script>
+        let selections = [];
+        let currentSet = 1;
+
+        function selectImage(set, imageName) {
+            document.querySelectorAll(`#imageSet${set} img`).forEach(img => {
+                img.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+            selections[set - 1] = imageName;
+            document.getElementById('nextButton').style.display = 'block';
+        }
+
+        function nextSet() {
+            if (currentSet === 1) {
+                document.getElementById('imageSet1').style.display = 'none';
+                document.getElementById('imageSet2').style.display = 'flex';
+                currentSet++;
+                document.getElementById('nextButton').style.display = 'none';
+                document.getElementById('finishButton').style.display = 'block';
+            }
+        }
+
+        function finishSelection() {
+            let emailBody = `You selected the following images:\n\n`;
+            emailBody += selections.map((selection, index) => `Selection ${index + 1}: ${selection}`).join('\n');
+
+            sendEmail(emailBody);
+        }
+
+        function sendEmail(body) {
+            emailjs.send("service_txwjfty", "template_fdre39m", {
+                message: body,
+                to_name: "Tufi", // You can customize the recipient
+                from_name: "V-Day", // Customize the sender's name
+                reply_to: "" // Add a reply-to email address
+            }).then(function(response) {
+                alert('Email sent successfully!');
+            }, function(error) {
+                alert('Failed to send email: ' + JSON.stringify(error));
+            });
+        }
+    </script>
+
+</body>
+</html>
